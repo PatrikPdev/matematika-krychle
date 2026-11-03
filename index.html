@@ -1,0 +1,818 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Krychle a mnohostěny</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800&family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400&display=swap">
+<style>
+/* Layout: squared exercise-book paper; each problem = rotatable 3D figure beside numbered solution steps that drive what the figure highlights */
+:root{
+  --paper:#f5f7fa; --grid:rgba(31,95,191,.075); --card:#ffffff; --ink:#18233a; --ink-2:#4b5872; --rule:#d7dde7;
+  --edge:#b8323a; --edge-faint:#dcaeb1; --pen:#1f5fbf; --pen-soft:rgba(31,95,191,.15); --hl:rgba(255,210,0,.42);
+  --aux:#8a92a3; --wrong:#d9480f; --ok:#2b8a4b;
+  --f-display:"Archivo","Arial Narrow",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#0f141b; --grid:rgba(120,174,252,.06); --card:#161d27; --ink:#e5eaf2; --ink-2:#a3adbf; --rule:#2a3442;
+  --edge:#e2676e; --edge-faint:#6a3b40; --pen:#7aaefc; --pen-soft:rgba(122,174,252,.2); --hl:rgba(255,210,0,.24);
+  --aux:#6f788a; --wrong:#ff8a4c; --ok:#5ccb8a; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --paper:#0f141b; --grid:rgba(120,174,252,.06); --card:#161d27; --ink:#e5eaf2; --ink-2:#a3adbf; --rule:#2a3442;
+  --edge:#e2676e; --edge-faint:#6a3b40; --pen:#7aaefc; --pen-soft:rgba(122,174,252,.2); --hl:rgba(255,210,0,.24);
+  --aux:#6f788a; --wrong:#ff8a4c; --ok:#5ccb8a; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  background-color:var(--paper);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:22px 22px;
+  color:var(--ink); font-family:var(--f-body); font-size:16px; line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px)); padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:28px 64px;
+}
+.wrap{max-width:1120px;margin:0 auto;display:flex;flex-direction:column;gap:40px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.15}
+h1{font-size:clamp(2rem,5vw,3.1rem);font-weight:800;letter-spacing:-.01em}
+h2{font-size:clamp(1.45rem,3.2vw,1.9rem);font-weight:800}
+h3{font-size:1.25rem;font-weight:600}
+p{margin:0}
+.eyebrow{font-family:var(--f-mono);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--edge)}
+header{display:flex;flex-direction:column;gap:14px;max-width:760px}
+.lead{color:var(--ink-2);font-size:1.05rem;max-width:65ch}
+nav.toc{display:flex;flex-wrap:wrap;gap:8px}
+nav.toc a{font-size:.9rem;color:var(--ink);text-decoration:none;border:1px solid var(--rule);background:var(--card);padding:5px 12px;border-radius:999px}
+nav.toc a:hover,nav.toc a:focus-visible{border-color:var(--pen);color:var(--pen)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.85rem;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.legend i{display:inline-block;width:22px;height:0;border-top:3px solid}
+.legend i.k{border-color:var(--pen)} .legend i.y{height:12px;border:0;background:var(--hl);border-radius:2px}
+.legend i.a{border-top:1.5px solid var(--aux)} .legend i.w{border-top:3px dashed var(--wrong)} .legend i.e{border-top:2px dashed var(--edge)}
+
+.part{display:flex;flex-direction:column;gap:22px}
+.part>header{gap:8px}
+.intro{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:18px 20px;display:flex;flex-direction:column;gap:10px;max-width:820px}
+.intro ol,.intro ul{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:6px}
+
+.prob{background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:16px}
+.prob-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 14px}
+.prob-head .task{color:var(--ink-2);flex-basis:100%;font-size:.95rem}
+.chip{font-family:var(--f-mono);font-size:.74rem;letter-spacing:.04em;text-transform:uppercase;padding:2px 9px;border-radius:999px;border:1px solid currentColor}
+.chip.ok{color:var(--ok)} .chip.bad{color:var(--wrong)}
+.grid{display:grid;grid-template-columns:minmax(0,440px) minmax(0,1fr);gap:24px;align-items:start}
+.figcol{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px)}
+.figwrap{display:flex;flex-direction:column;gap:8px;background:var(--card)}
+svg.fig{width:100%;height:auto;max-width:100%;aspect-ratio:420/360;border:1px solid var(--rule);border-radius:8px;background:var(--card);touch-action:none;cursor:grab;display:block}
+svg.fig.grab{cursor:grabbing}
+svg.fig:focus-visible{outline:2px solid var(--pen);outline-offset:2px}
+.figbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.figbar button,.btn{font:600 .88rem var(--f-body);color:var(--ink);background:var(--paper);border:1px solid var(--rule);border-radius:7px;padding:5px 11px;cursor:pointer}
+.figbar button:hover,.btn:hover{border-color:var(--pen);color:var(--pen)}
+.figbar button:focus-visible,.btn:focus-visible{outline:2px solid var(--pen);outline-offset:1px}
+.figbar button:disabled{opacity:.4;cursor:default;border-color:var(--rule);color:var(--ink)}
+.figbar .count{font-family:var(--f-mono);font-size:.82rem;color:var(--ink-2);font-variant-numeric:tabular-nums;min-width:6.5em;text-align:center}
+.figbar .reset{margin-left:auto}
+.hint{font-size:.8rem;color:var(--ink-2)}
+
+ol.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;min-width:0}
+ol.steps li{border:1px solid transparent;border-radius:9px;padding:10px 12px;cursor:pointer;display:flex;flex-direction:column;gap:6px;min-width:0}
+ol.steps li:hover{border-color:var(--rule)}
+ol.steps li.on{border-color:var(--pen);background:var(--pen-soft)}
+.st-h{all:unset;display:flex;gap:10px;align-items:baseline;font-weight:600;cursor:pointer}
+.st-h:focus-visible{outline:2px solid var(--pen);outline-offset:3px;border-radius:4px}
+.st-n{font-family:var(--f-mono);font-size:.8rem;color:var(--pen);min-width:1.4em;font-variant-numeric:tabular-nums}
+.st-b{padding-left:calc(1.4em + 10px);display:flex;flex-direction:column;gap:8px;color:var(--ink);min-width:0}
+.st-b p{max-width:65ch}
+.eq{font-variant-numeric:tabular-nums;display:flex;flex-direction:column;gap:6px;padding:8px 12px;border-left:2px solid var(--rule);overflow-x:auto;font-size:1.02rem}
+.eq>div{white-space:nowrap}
+.res{font-weight:600}
+.res b{color:var(--pen)}
+.tip{font-size:.92rem;color:var(--ink-2)}
+.rt{white-space:nowrap}
+.rt::before{content:"√"}
+.rt>span{display:inline-block;border-top:1.4px solid currentColor;line-height:1.2;padding:1px .12em 0}
+.fr{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;font-size:.88em;line-height:1.2;margin:0 .1em}
+.fr>span:first-child{border-bottom:1.3px solid currentColor;padding:0 .2em}
+sub{font-size:.68em}
+.mono{font-family:var(--f-mono);font-size:.92em}
+
+.note{border:1px solid var(--rule);border-radius:9px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;font-size:.95rem;margin-top:6px}
+.note.bad{border-color:var(--wrong)}
+.note.ok{border-color:var(--ok)}
+.note .lbl{font-family:var(--f-mono);font-size:.74rem;letter-spacing:.06em;text-transform:uppercase}
+.note.bad .lbl{color:var(--wrong)} .note.ok .lbl{color:var(--ok)}
+
+.tblwrap{overflow-x:auto;border:1px solid var(--rule);border-radius:10px;background:var(--card)}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;font-size:.95rem}
+th,td{text-align:left;padding:9px 14px;border-bottom:1px solid var(--rule);white-space:nowrap}
+th{font-family:var(--f-mono);font-size:.74rem;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);font-weight:500}
+tr:last-child td{border-bottom:0}
+
+.practice{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px}
+.pcard{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:10px}
+details{border-top:1px solid var(--rule);padding-top:8px}
+summary{cursor:pointer;font-weight:600;color:var(--pen)}
+summary:focus-visible{outline:2px solid var(--pen);outline-offset:2px}
+details>div{padding-top:8px;display:flex;flex-direction:column;gap:6px}
+
+svg text{font-family:var(--f-body)}
+.e-main{stroke:var(--edge);stroke-width:2.2;stroke-linecap:round}
+.e-faint{stroke:var(--edge-faint);stroke-width:1.5;stroke-linecap:round}
+.hid{stroke-dasharray:5 4;opacity:.8}
+.s-key{stroke:var(--pen);stroke-width:3.4;stroke-linecap:round}
+.s-sec{stroke:var(--pen);stroke-width:3;stroke-linecap:round}
+.s-leg{stroke:var(--ink);stroke-width:2.4;stroke-linecap:round}
+.s-aux{stroke:var(--aux);stroke-width:1.2}
+.s-wrong{stroke:var(--wrong);stroke-width:2.8;stroke-dasharray:7 4;stroke-linecap:round}
+.p-tri{fill:var(--hl)} .p-sec{fill:var(--pen-soft)} .p-face{fill:var(--pen-soft)}
+.ra{stroke:var(--ink);stroke-width:1.4;fill:none}
+.d-vert{fill:var(--edge)} .d-key{fill:var(--pen)} .d-wrong{fill:var(--wrong)}
+.lv{fill:var(--ink);font-weight:600;font-size:14px;paint-order:stroke;stroke:var(--card);stroke-width:4px;stroke-linejoin:round}
+.lv.faint{fill:var(--ink-2);font-size:12.5px}
+.ls{font-family:var(--f-mono);font-size:12.5px;font-weight:500;paint-order:stroke;stroke:var(--card);stroke-width:4px;stroke-linejoin:round}
+.ls.key,.ls.sec,.ls.lbl{fill:var(--pen)} .ls.leg{fill:var(--ink)} .ls.wrong{fill:var(--wrong)} .ls.aux{fill:var(--ink-2)}
+.lp{fill:var(--pen);font-weight:600;font-size:13.5px;paint-order:stroke;stroke:var(--card);stroke-width:4px;stroke-linejoin:round}
+.lp.wrong{fill:var(--wrong)} .lp.txt{fill:var(--ink);font-family:var(--f-mono);font-size:12px;font-weight:500}
+
+.hint .touch{display:none}
+@media (max-width:820px){
+  body{font-size:15.5px;padding-block:20px 48px}
+  .wrap{gap:32px}
+  .grid{grid-template-columns:minmax(0,1fr);gap:12px}
+  .figcol{top:env(safe-area-inset-top,0px);z-index:3;padding-block:6px 8px;background:var(--card);border-bottom:1px solid var(--rule);margin-inline:-12px;padding-inline:12px}
+  .figwrap{gap:6px}
+  svg.fig{max-height:33svh;width:auto;margin:0 auto}
+  .figbar{flex-wrap:nowrap;gap:6px}
+  .figbar button{padding:6px 10px;font-size:.84rem}
+  .figbar .count{min-width:0;flex:1;white-space:nowrap}
+  .figbar .reset{margin-left:0}
+  .hint{display:none}
+  .prob{padding:14px 12px;gap:12px}
+  .prob-head h3{font-size:1.12rem}
+  ol.steps li{padding:10px}
+  .st-b{padding-left:0}
+  .eq{font-size:.98rem;padding:6px 10px}
+  .lv{font-size:17px} .lv.faint{font-size:15px}
+  .ls{font-size:15px} .lp{font-size:16px} .lp.txt{font-size:14px}
+  table{font-size:.9rem} th,td{padding:8px 10px}
+}
+@media (pointer:coarse){
+  svg.fig{touch-action:pan-y}
+  .hint .mouse{display:none} .hint .touch{display:inline}
+}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+<header>
+  <span class="eyebrow">Opakování na test · stereometrie</span>
+  <h1>Krychle a mnohostěny</h1>
+  <p class="lead">Vzdálenosti bodů v krychli, řezy krychle a objemy a povrchy těles. Každé těleso můžeš myší nebo prstem otočit. Klepnutím na krok řešení se v obrázku zvýrazní přesně to, o čem krok mluví.</p>
+  <nav class="toc" aria-label="Obsah">
+    <a href="#vzdalenosti">1 · Vzdálenosti v krychli</a>
+    <a href="#rezy">2 · Řezy krychle</a>
+    <a href="#mnohosteny">3 · Mnohostěny</a>
+    <a href="#procvic">Zkus si sám</a>
+    <a href="#tahak">Tahák</a>
+  </nav>
+  <div class="legend" aria-label="Legenda barev">
+    <span><i class="k"></i>hledaná úsečka / hrana řezu</span>
+    <span><i class="y"></i>pravoúhlý trojúhelník</span>
+    <span><i class="a"></i>pomocná čára</span>
+    <span><i class="e"></i>neviditelná hrana</span>
+    <span><i class="w"></i>chyba z testu</span>
+  </div>
+</header>
+
+<section class="part" id="vzdalenosti">
+  <header>
+    <span class="eyebrow">Část 1 · krychle ABCDEFGH, a = 8 cm</span>
+    <h2>Vzdálenosti bodů v krychli</h2>
+  </header>
+  <div class="intro">
+    <p><b>Jediný nástroj, který potřebuješ, je Pythagorova věta.</b> V pravoúhlém trojúhelníku je strana naproti pravému úhlu přepona c a platí</p>
+    <div class="eq"><div>c² = a² + b² &nbsp;⇒&nbsp; c = <span class="rt"><span>a² + b²</span></span></div></div>
+    <p>Postup je u každé vzdálenosti stejný:</p>
+    <ol>
+      <li>Najdi trojúhelník, ve kterém je hledaná úsečka přeponou.</li>
+      <li>Ověř, kde je pravý úhel, a řekni si <i>proč</i> tam je.</li>
+      <li>Spočítej odvěsny a dosaď.</li>
+    </ol>
+    <p class="tip">Značení: S<sub>XY</sub> je střed úsečky XY, tedy bod přesně v její polovině.</p>
+  </div>
+  <div class="prob" data-fig="v-a"></div>
+  <div class="prob" data-fig="v-b"></div>
+  <div class="prob" data-fig="v-c"></div>
+  <div class="prob" data-fig="v-d"></div>
+  <div class="tblwrap">
+    <table>
+      <thead><tr><th>Úsečka</th><th>Typ</th><th>Vzorec</th><th>Pro a = 8 cm</th></tr></thead>
+      <tbody>
+        <tr><td>FH</td><td>stěnová úhlopříčka</td><td>a<span class="rt"><span>2</span></span></td><td>8<span class="rt"><span>2</span></span> ≈ 11,31 cm</td></tr>
+        <tr><td>AS<sub>BG</sub></td><td>vrchol → střed protější stěny</td><td><span class="rt"><span>a² + (a/2)² + (a/2)²</span></span></td><td>4<span class="rt"><span>6</span></span> ≈ 9,80 cm</td></tr>
+        <tr><td>S<sub>AH</sub>S<sub>AF</sub></td><td>střed stěny → střed sousední stěny</td><td>a<span class="rt"><span>2</span></span> / 2</td><td>4<span class="rt"><span>2</span></span> ≈ 5,66 cm</td></tr>
+        <tr><td>DF</td><td>tělesová úhlopříčka</td><td>a<span class="rt"><span>3</span></span></td><td>8<span class="rt"><span>3</span></span> ≈ 13,86 cm</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="part" id="rezy">
+  <header>
+    <span class="eyebrow">Část 2</span>
+    <h2>Řezy krychle</h2>
+  </header>
+  <div class="intro">
+    <p><b>Tři pravidla, se kterými vyřešíš každý řez:</b></p>
+    <ol>
+      <li><b>Dva body ve stejné stěně spoj.</b> Spojnice je hrana řezu.</li>
+      <li><b>Rovnoběžné stěny se řežou v rovnoběžných úsečkách.</b> Když máš hranu řezu v jedné stěně, v protější stěně povedeš rovnoběžku s ní.</li>
+      <li><b>Když nemáš dva body v jedné stěně,</b> prodluž hranu řezu a hranu krychle, které leží ve stejné rovině, a jejich průsečík použij jako pomocný bod.</li>
+    </ol>
+    <p>Řez je hotový, když tvoří uzavřený mnohoúhelník a každá jeho strana leží v nějaké stěně krychle.</p>
+  </div>
+  <div class="prob" data-fig="r-1"></div>
+  <div class="prob" data-fig="r-2"></div>
+</section>
+
+<section class="part" id="mnohosteny">
+  <header>
+    <span class="eyebrow">Část 3</span>
+    <h2>Mnohostěny: objem a povrch</h2>
+  </header>
+  <div class="intro">
+    <p><b>Vzorce, ze kterých vychází všechno:</b></p>
+    <ul>
+      <li><b>Hranol:</b> V = S<sub>p</sub> · v &nbsp;·&nbsp; S = 2·S<sub>p</sub> + Q &nbsp;(podstava dvakrát + plášť)</li>
+      <li><b>Jehlan:</b> V = <span class="fr"><span>1</span><span>3</span></span>· S<sub>p</sub> · v &nbsp;·&nbsp; S = S<sub>p</sub> + Q &nbsp;(podstava jednou + plášť)</li>
+    </ul>
+    <p class="tip">S<sub>p</sub> = obsah podstavy, Q = obsah pláště (součet všech bočních stěn), v = výška tělesa.</p>
+  </div>
+  <div class="prob" data-fig="m-1"></div>
+  <div class="prob" data-fig="m-2"></div>
+  <div class="prob" data-fig="m-3"></div>
+  <div class="prob" data-fig="m-4"></div>
+</section>
+
+<section class="part" id="procvic">
+  <header>
+    <span class="eyebrow">Kontrola</span>
+    <h2>Zkus si sám</h2>
+    <p class="lead">Krychle ABCDEFGH, a = 8 cm. Nejdřív to zkus na papír, pak si rozklikni nápovědu nebo řešení.</p>
+  </header>
+  <div class="practice">
+    <div class="pcard">
+      <h3>|E S<sub>BC</sub>|</h3>
+      <details><summary>Nápověda</summary><div><p>S<sub>BC</sub> je střed hrany BC (ne stěny). Z bodu E do něj jdeš o kolik doprava, dozadu a dolů?</p></div></details>
+      <details><summary>Řešení</summary><div>
+        <p>Doprava o celou hranu 8, dozadu o půl hrany 4, dolů o celou hranu 8.</p>
+        <div class="eq"><div>|ES<sub>BC</sub>| = <span class="rt"><span>8² + 4² + 8²</span></span> = <span class="rt"><span>144</span></span> = <b>12 cm</b></div></div>
+        <p class="tip">Tohle je přesně ten výpočet, který byl v testu u úlohy B. Pro střed <i>hrany</i> je správný, pro střed <i>stěny</i> ne.</p>
+      </div></details>
+    </div>
+    <div class="pcard">
+      <h3>|S<sub>AB</sub> S<sub>GH</sub>|</h3>
+      <details><summary>Nápověda</summary><div><p>Oba body jsou ve stejné „svislé rovině“ uprostřed krychle. O kolik se liší do strany?</p></div></details>
+      <details><summary>Řešení</summary><div>
+        <p>Do strany 0 (oba v polovině šířky), dozadu 8, nahoru 8.</p>
+        <div class="eq"><div>|S<sub>AB</sub>S<sub>GH</sub>| = <span class="rt"><span>0² + 8² + 8²</span></span> = <span class="rt"><span>128</span></span> = <b>8<span class="rt"><span>2</span></span> ≈ 11,31 cm</b></div></div>
+        <p class="tip">Vyšlo to samé jako stěnová úhlopříčka, protože úsečka je posunutá kopie úhlopříčky AH.</p>
+      </div></details>
+    </div>
+    <div class="pcard">
+      <h3>|S<sub>AB</sub> S<sub>CG</sub>|</h3>
+      <details><summary>Nápověda</summary><div><p>S<sub>AB</sub> je dole uprostřed přední hrany, S<sub>CG</sub> v půlce výšky vpravo vzadu. Rozepiš posuny.</p></div></details>
+      <details><summary>Řešení</summary><div>
+        <p>Doprava 4, dozadu 8, nahoru 4.</p>
+        <div class="eq"><div>|S<sub>AB</sub>S<sub>CG</sub>| = <span class="rt"><span>4² + 8² + 4²</span></span> = <span class="rt"><span>96</span></span> = <b>4<span class="rt"><span>6</span></span> ≈ 9,80 cm</b></div></div>
+      </div></details>
+    </div>
+  </div>
+</section>
+
+<section class="part" id="tahak">
+  <header>
+    <span class="eyebrow">Na poslední chvíli</span>
+    <h2>Tahák</h2>
+  </header>
+  <div class="tblwrap">
+    <table>
+      <thead><tr><th>Co</th><th>Vzorec</th></tr></thead>
+      <tbody>
+        <tr><td>Stěnová úhlopříčka krychle</td><td>a<span class="rt"><span>2</span></span></td></tr>
+        <tr><td>Tělesová úhlopříčka krychle</td><td>a<span class="rt"><span>3</span></span></td></tr>
+        <tr><td>Tělesová úhlopříčka kvádru</td><td><span class="rt"><span>a² + b² + c²</span></span></td></tr>
+        <tr><td>Rovnostranný trojúhelník: výška / obsah</td><td>(<span class="rt"><span>3</span></span>/2)·a &nbsp;/&nbsp; (<span class="rt"><span>3</span></span>/4)·a²</td></tr>
+        <tr><td>Pravidelný šestiúhelník: obsah</td><td>6 · (<span class="rt"><span>3</span></span>/4)·a² = (3<span class="rt"><span>3</span></span>/2)·a²</td></tr>
+        <tr><td>Pravidelný n-úhelník: obsah</td><td>n · a · ρ / 2, kde ρ = a / (2·tg(180°/n))</td></tr>
+        <tr><td>Kvádr: povrch / objem</td><td>2(ab + bc + ac) &nbsp;/&nbsp; abc</td></tr>
+        <tr><td>Hranol</td><td>V = S<sub>p</sub>·v &nbsp;·&nbsp; S = 2S<sub>p</sub> + Q</td></tr>
+        <tr><td>Jehlan</td><td>V = ⅓·S<sub>p</sub>·v &nbsp;·&nbsp; S = S<sub>p</sub> + Q</td></tr>
+        <tr><td>Střední příčka trojúhelníku</td><td>rovnoběžná se třetí stranou, poloviční délka</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="intro">
+    <p><b>Na co si dát pozor:</b></p>
+    <ul>
+      <li>Střed <b>stěny</b> = posun o půl hrany ve <b>dvou</b> směrech. Střed <b>hrany</b> = posun o půl hrany v <b>jednom</b> směru.</li>
+      <li>U každého trojúhelníku řekni nahlas, proč je tam pravý úhel. Když to nejde říct, trojúhelník je špatně.</li>
+      <li>Plášť jehlanu se počítá se <b>stěnovou výškou</b> v<sub>s</sub>, ne s výškou jehlanu v.</li>
+      <li>Poměr hran 3 : 5 : 7 → zaveď k, dosaď do vzorce, vyřeš k.</li>
+      <li>Jednotky: délka cm, obsah cm², objem cm³. Pod odmocninou při výpočtu c² jsou to cm².</li>
+    </ul>
+  </div>
+</section>
+</div>
+
+<script>
+const r = x => `<span class="rt"><span>${x}</span></span>`;
+const fr = (n, d) => `<span class="fr"><span>${n}</span><span>${d}</span></span>`;
+const sb = s => `S<sub>${s}</sub>`;
+
+const seg = (a, b, k = 'key', label = '', flip = false) => ({ t: 'seg', a, b, k, label, flip });
+const line = (a, b, t0, t1) => ({ t: 'line', a, b, t0, t1 });
+const poly = (p, k = 'tri') => ({ t: 'poly', p, k });
+const pt = (p, k = 'key', label = null, off = null) => ({ t: 'pt', p, k, label: label ?? p, off });
+const ra = (p, u, v) => ({ t: 'ra', p, u, v });
+
+const box = (a, b, c) => ({ A:[0,0,0], B:[a,0,0], C:[a,b,0], D:[0,b,0], E:[0,0,c], F:[a,0,c], G:[a,b,c], H:[0,b,c] });
+const boxFaces = [['A','B','C','D'],['E','F','G','H'],['A','B','F','E'],['D','C','G','H'],['A','D','H','E'],['B','C','G','F']];
+const cube = () => box(8, 8, 8);
+const cubeSolid = { faces: boxFaces, style: 'main', labels: true };
+
+const FIGS = {};
+
+/* ---------- 1A ---------- */
+FIGS['v-a'] = {
+  title: 'Úloha A · |FH|', chip: ['ok', 'v testu správně'],
+  task: 'Vypočítej vzdálenost bodů F a H.',
+  pts: cube(), solids: [cubeSolid],
+  els: { FH0: seg('F','H'), FH: seg('F','H','key','8√2'), FG: seg('F','G','leg','8'), GH: seg('G','H','leg','8'), tri: poly(['F','G','H']), raG: ra('G','F','H') },
+  steps: [
+    { title: 'Najdi úsečku', show: ['FH0'], html: `<p>Body F a H leží oba v horní stěně EFGH. Úsečka FH je tedy úhlopříčka čtverce. Říká se jí <b>stěnová úhlopříčka</b>.</p>` },
+    { title: 'Najdi pravoúhlý trojúhelník', show: ['tri','FG','GH','raG','FH0'], html: `<p>Trojúhelník <b>FGH</b>. Pravý úhel je u <b>G</b>, protože FG a GH jsou dvě hrany čtverce a ty jsou na sebe kolmé vždycky. Hledaná FH leží naproti pravému úhlu, je to přepona.</p>` },
+    { title: 'Dosaď do Pythagorovy věty', show: ['tri','FG','GH','raG','FH'], html: `
+      <div class="eq">
+        <div>|FH|² = |FG|² + |GH|²</div>
+        <div>|FH|² = 8² + 8² = 64 + 64 = 128 cm²</div>
+        <div>|FH| = ${r('128')} = ${r('64 · 2')} = 8${r('2')} ≈ 11,31 cm</div>
+      </div>
+      <p class="tip">Zjednodušení odmocniny: najdi největší druhou mocninu, která dělí číslo pod odmocninou. 128 = 64 · 2 a ${r('64')} = 8, takže ${r('128')} = 8${r('2')}.</p>
+      <p class="res">Výsledek: <b>|FH| = 8${r('2')} cm ≈ 11,31 cm</b>. Obecně je stěnová úhlopříčka krychle a${r('2')}.</p>` }
+  ],
+  note: { k: 'ok', html: `<span class="lbl">V testu</span><p>Správně. Jen u řádku c² = 128 patří jednotka <b>cm²</b>, ne cm.</p>` }
+};
+
+/* ---------- 1B ---------- */
+FIGS['v-b'] = {
+  title: `Úloha B · |A${sb('BG')}|`, chip: ['bad', 'v testu chyba'],
+  task: `Vypočítej vzdálenost bodu A od středu úsečky BG.`,
+  pts: { ...cube(), S_BG: [8,4,4], S_CG: [8,8,4] }, solids: [cubeSolid], def: 3,
+  els: {
+    BG: seg('B','G','aux'), CF: seg('C','F','aux'), pS: pt('S_BG','key','S_BG',[14,-12]),
+    AS0: seg('A','S_BG'), AS: seg('A','S_BG','key','4√6'), AB: seg('A','B','leg','8'), BS: seg('B','S_BG','leg','4√2'),
+    tri: poly(['A','B','S_BG']), raB: ra('B','A','S_BG'),
+    pW: pt('S_CG','wrong','S_CG',[16,6]), AW: seg('A','S_CG','wrong','12')
+  },
+  steps: [
+    { title: `Kde leží ${sb('BG')}`, show: ['BG','CF','pS'], html: `<p>${sb('BG')} je střed úsečky BG. BG je úhlopříčka pravé stěny BCGF a úhlopříčky čtverce se protínají v jeho středu (v obrázku je vidět i druhá úhlopříčka CF). <b>${sb('BG')} je tedy přesně uprostřed pravé stěny.</b></p>` },
+    { title: 'Hledaná úsečka', show: ['BG','pS','AS0'], html: `<p>Spojíš A se středem pravé stěny. Úsečka vede šikmo vnitřkem krychle, neleží v žádné stěně. Potřebuješ trojúhelník.</p>` },
+    { title: `Pravoúhlý trojúhelník AB${sb('BG')}`, show: ['tri','AB','BS','raB','AS0','pS','BG'], html: `
+      <p>Pravý úhel je u <b>B</b>. Hrana AB je kolmá na celou pravou stěnu BCGF (stojí na ní jako hřebík na desce), takže je kolmá na každou úsečku v té stěně, i na B${sb('BG')}.</p>
+      <div class="eq">
+        <div>|AB| = a = 8</div>
+        <div>|B${sb('BG')}| = polovina úhlopříčky BG = ${fr('a' + r('2'), '2')} = ${fr('8' + r('2'), '2')} = 4${r('2')}</div>
+      </div>` },
+    { title: 'Výpočet', show: ['tri','AB','BS','raB','AS','pS','BG'], html: `
+      <div class="eq">
+        <div>|A${sb('BG')}|² = |AB|² + |B${sb('BG')}|²</div>
+        <div>|A${sb('BG')}|² = 8² + (4${r('2')})² = 64 + 16 · 2 = 64 + 32 = 96</div>
+        <div>|A${sb('BG')}| = ${r('96')} = ${r('16 · 6')} = 4${r('6')} ≈ 9,80 cm</div>
+      </div>
+      <p class="tip">Pozor na (4${r('2')})²: umocníš obě části zvlášť, 4² = 16 a (${r('2')})² = 2, dohromady 32.</p>
+      <p class="tip">Kontrola přes posuny: z A do ${sb('BG')} jdeš o 8 doprava, 4 dozadu, 4 nahoru → ${r('8² + 4² + 4²')} = ${r('96')} ✓</p>
+      <p class="res">Výsledek: <b>|A${sb('BG')}| = 4${r('6')} cm ≈ 9,80 cm</b></p>` },
+    { title: 'Kde byla chyba v testu', show: ['AS','pS','BG','pW','AW'], html: `<p>Tvůj vzorec ${r('(a/2)² + a² + a²')} znamená posun o <b>celou</b> hranu ve dvou směrech a o půl hrany v jednom. To je cesta z A do středu <b>hrany</b> CG (oranžově) a ta opravdu měří 12 cm.</p><p>Střed <b>stěny</b> je ale jen o půl hrany dozadu a o půl hrany nahoru: ${r('a² + (a/2)² + (a/2)²')}.</p>` }
+  ],
+  note: { k: 'bad', html: `<span class="lbl">Chyba v testu</span><p>Vyšlo 12 cm, správně je <b>4${r('6')} ≈ 9,80 cm</b>. Zaměnil jsi střed stěny za střed hrany, viz krok 5.</p>` }
+};
+
+/* ---------- 1C ---------- */
+FIGS['v-c'] = {
+  title: `Úloha C · |${sb('AH')}${sb('AF')}|`, chip: ['bad', 'v testu chyba'],
+  task: 'Vypočítej vzdálenost středů úseček AH a AF.',
+  pts: { ...cube(), S_AH: [0,4,4], S_AF: [4,0,4] }, solids: [cubeSolid],
+  els: {
+    AH: seg('A','H','aux'), ED: seg('E','D','aux'), AF: seg('A','F','aux'), BE: seg('B','E','aux'),
+    p1: pt('S_AH','key','S_AH',[-6,-16]), p2: pt('S_AF','key','S_AF',[4,18]),
+    tri: poly(['A','H','F']), HF: seg('H','F','leg','8√2'), SS0: seg('S_AH','S_AF'), SS: seg('S_AH','S_AF','key','4√2')
+  },
+  steps: [
+    { title: 'Kde ty body jsou', show: ['AH','ED','AF','BE','p1','p2'], html: `<p>AH je úhlopříčka levé stěny ADHE, takže ${sb('AH')} je <b>střed levé stěny</b>. AF je úhlopříčka přední stěny ABFE, takže ${sb('AF')} je <b>střed přední stěny</b>. Oba body jsou v polovině výšky krychle.</p>` },
+    { title: 'Trojúhelník AHF', show: ['tri','AH','AF','HF','p1','p2','SS0'], html: `<p>${sb('AH')} leží v polovině strany AH a ${sb('AF')} v polovině strany AF. Oba jsou tedy středy stran trojúhelníku <b>AHF</b>. Jeho třetí strana HF je stěnová úhlopříčka horní stěny a z úlohy A víš, že |HF| = 8${r('2')}.</p>` },
+    { title: 'Střední příčka', show: ['tri','AH','AF','HF','p1','p2','SS'], html: `
+      <p>Úsečka, která spojuje středy dvou stran trojúhelníku, je <b>střední příčka</b>. Je rovnoběžná se třetí stranou a je přesně poloviční.</p>
+      <div class="eq">
+        <div>|${sb('AH')}${sb('AF')}| = ${fr('|HF|', '2')} = ${fr('8' + r('2'), '2')} = 4${r('2')} ≈ 5,66 cm</div>
+      </div>
+      <p class="tip">Kontrola přes posuny: z ${sb('AH')} do ${sb('AF')} jdeš o 4 doprava, o 4 dopředu a výška je stejná → ${r('4² + 4² + 0²')} = ${r('32')} = 4${r('2')} ✓</p>
+      <p class="res">Výsledek: <b>|${sb('AH')}${sb('AF')}| = 4${r('2')} cm ≈ 5,66 cm</b></p>` }
+  ],
+  note: { k: 'bad', html: `<span class="lbl">Chyba v testu</span><p>Použil jsi ${r('a² + (a/2)²')} = ${r('80')}. Mezi těmi body ale není rozdíl o celou hranu v žádném směru. Liší se o půl hrany do strany a o půl hrany do hloubky, výška je stejná. Správně ${r('(a/2)² + (a/2)²')} = <b>4${r('2')} cm</b>.</p>` }
+};
+
+/* ---------- 1D ---------- */
+FIGS['v-d'] = {
+  title: 'Úloha D · |DF|', chip: ['ok', 'v testu správně'],
+  task: 'Vypočítej vzdálenost bodů D a F.',
+  pts: cube(), solids: [cubeSolid],
+  els: { DF0: seg('D','F'), DF: seg('D','F','key','8√3', true), DB: seg('D','B','leg','8√2'), BF: seg('B','F','leg','8'), tri: poly(['D','B','F']), raB: ra('B','D','F') },
+  steps: [
+    { title: 'Tělesová úhlopříčka', show: ['DF0'], html: `<p>D je vlevo vzadu dole, F vpravo vpředu nahoře. DF vede napříč celou krychlí přes její střed. Je to <b>tělesová úhlopříčka</b>.</p>` },
+    { title: 'Trojúhelník DBF', show: ['tri','DB','BF','raB','DF0'], html: `<p>Pravý úhel je u <b>B</b>. Hrana BF je svislá, takže je kolmá na celou spodní podstavu ABCD, a tím i na úsečku DB, která v podstavě leží.</p>
+      <div class="eq"><div>|DB| = stěnová úhlopříčka podstavy = 8${r('2')}</div><div>|BF| = a = 8</div></div>` },
+    { title: 'Výpočet', show: ['tri','DB','BF','raB','DF'], html: `
+      <div class="eq">
+        <div>|DF|² = (8${r('2')})² + 8² = 128 + 64 = 192</div>
+        <div>|DF| = ${r('192')} = ${r('64 · 3')} = 8${r('3')} ≈ 13,86 cm</div>
+      </div>
+      <p class="tip">V testu jsi rovnou napsal ${r('a² + a² + a²')}. To je totéž, protože (a${r('2')})² + a² = 2a² + a² = 3a².</p>
+      <p class="res">Výsledek: <b>|DF| = 8${r('3')} cm ≈ 13,86 cm</b>. Obecně je tělesová úhlopříčka krychle a${r('3')}.</p>` }
+  ],
+  note: { k: 'ok', html: `<span class="lbl">V testu</span><p>Správně.</p>` }
+};
+
+/* ---------- 2.1 ---------- */
+FIGS['r-1'] = {
+  title: `Řez 1 · rovina B G ${sb('AE')}`, chip: ['ok', 'v testu správně'],
+  task: `Sestroj řez krychle ABCDEFGH rovinou B, G, ${sb('AE')}.`,
+  pts: { ...cube(), S_AE: [0,0,4], S_EH: [0,4,8] }, solids: [cubeSolid],
+  els: {
+    pB: pt('B','key',''), pG: pt('G','key',''), pAE: pt('S_AE','key','S_AE',[-22,4]), pEH: pt('S_EH','key','S_EH',[-20,-10]),
+    BG: seg('B','G','sec'), par: line('S_AE','S_EH',-0.6,1.6), AH: seg('A','H','aux'),
+    BS: seg('B','S_AE','sec'), GS: seg('G','S_EH','sec'), SS: seg('S_AE','S_EH','sec'), sec: poly(['B','G','S_EH','S_AE'],'sec')
+  },
+  steps: [
+    { title: 'Zadané body', show: ['pB','pG','pAE'], html: `<p>Rovinu určují tři body: vrcholy B a G a střed hrany AE, bod ${sb('AE')}.</p>` },
+    { title: 'Pravidlo 1: B a G jsou ve stejné stěně', show: ['pB','pG','pAE','BG'], html: `<p>B i G leží v pravé stěně BCGF, takže je spojíš. <b>BG je první hrana řezu.</b></p>` },
+    { title: 'Pravidlo 2: rovnoběžka v protější stěně', show: ['BG','pAE','par','pEH','AH'], html: `<p>Levá stěna ADHE je rovnoběžná s pravou stěnou BCGF. Řez v levé stěně proto musí být <b>rovnoběžný s BG</b>. Bodem ${sb('AE')} vedeš rovnoběžku s BG (je rovnoběžná i s úhlopříčkou AH, protože AH ∥ BG).</p>
+      <p>Rovnoběžka protne hranu EH v jejím středu ${sb('EH')}. Proč přesně ve středu: ${sb('AE')} a ${sb('EH')} jsou středy stran trojúhelníku AEH, takže jejich spojnice je střední příčka rovnoběžná s AH.</p>` },
+    { title: 'Uzavři řez', show: ['BG','SS','BS','GS','sec','pAE','pEH'], html: `<p>${sb('AE')} a B leží v přední stěně ABFE, spojíš je. ${sb('EH')} a G leží v horní stěně EFGH, spojíš je.</p>
+      <p class="res">Řez je čtyřúhelník <b>B G ${sb('EH')} ${sb('AE')}</b>, rovnoramenný lichoběžník (BG ∥ ${sb('AE')}${sb('EH')}, ramena B${sb('AE')} a G${sb('EH')} jsou stejně dlouhá).</p>` }
+  ],
+  note: { k: 'ok', html: `<span class="lbl">V testu</span><p>Správně, řez prochází B, G, ${sb('EH')} a ${sb('AE')}.</p>` }
+};
+
+/* ---------- 2.2 ---------- */
+FIGS['r-2'] = {
+  title: 'Řez 2 · rovina IJK', chip: ['ok', 'v testu správně'],
+  task: 'Sestroj řez krychle ABCDEFGH rovinou IJK (K na hraně AE, J na hraně BF, I na hraně CG).',
+  pts: { ...cube(), K: [0,0,6], J: [8,0,3], I: [8,8,6], L: [0,16/3,8], M: [8/3,8,8] }, solids: [cubeSolid],
+  els: {
+    pK: pt('K','key','K',[-16,0]), pJ: pt('J','key','J',[16,4]), pI: pt('I','key','I',[16,0]), pL: pt('L','key','L',[-12,-12]), pM: pt('M','key','M',[2,-16]),
+    JK: seg('J','K','sec'), IJ: seg('I','J','sec'), lK: line('K','L',-0.4,1.45), lI: line('I','M',-0.4,1.45),
+    KL: seg('K','L','sec'), IM: seg('I','M','sec'), LM: seg('L','M','sec'), sec: poly(['K','J','I','M','L'],'sec')
+  },
+  steps: [
+    { title: 'Zadané body', show: ['pK','pJ','pI'], html: `<p>K leží na hraně AE, J na hraně BF a I na hraně CG. Polohy jsem odečetl z obrázku přibližně (K ve ¾ výšky AE, J ve ⅜ výšky BF, I ve ¾ výšky CG). Postup platí pro jakoukoli polohu.</p>` },
+    { title: 'Pravidlo 1: spoj body ve stejných stěnách', show: ['pK','pJ','pI','JK','IJ'], html: `<p>J a K leží oba v přední stěně ABFE, takže <b>JK je hrana řezu</b>. I a J leží oba v pravé stěně BCGF, takže <b>IJ je hrana řezu</b>. I a K ve stejné stěně nejsou, ty spojit nesmíš.</p>` },
+    { title: 'Pravidlo 2: rovnoběžka s IJ bodem K', show: ['pK','pJ','pI','JK','IJ','lK','pL'], html: `<p>Levá stěna ADHE je rovnoběžná s pravou BCGF. Bodem K proto vedeš <b>rovnoběžku s IJ</b>. Ta stoupá stejně jako IJ (z J do I o 3 cm nahoru na 8 cm hloubky), takže z K by u hrany DH byla ve výšce 6 + 3 = 9 cm. To je nad krychlí, proto rovnoběžka vyjede ven už horní hranou <b>EH</b> v bodě L.</p>` },
+    { title: 'Pravidlo 2: rovnoběžka s JK bodem I', show: ['pK','pJ','pI','JK','IJ','lK','pL','lI','pM'], html: `<p>Zadní stěna DCGH je rovnoběžná s přední ABFE. Bodem I vedeš <b>rovnoběžku s JK</b>. Ze stejného důvodu jako v minulém kroku vyjede z krychle horní hranou <b>GH</b> v bodě M.</p>` },
+    { title: 'Uzavři řez v horní stěně', show: ['JK','IJ','KL','IM','LM','sec','pK','pJ','pI','pL','pM'], html: `<p>L a M leží oba v horní stěně EFGH, takže je spojíš.</p>
+      <p class="res">Řez je <b>pětiúhelník K J I M L</b>. Není to čtyřúhelník, protože rovina vyjede horní stěnou dřív, než dojde k hraně DH, a odřízne roh u H.</p>` }
+  ],
+  note: { k: 'ok', html: `<span class="lbl">V testu</span><p>Konstrukce je správně. Body na EH a GH máš ale pojmenované S<sub>EH</sub> a S<sub>GH</sub>. Písmeno S znamená střed a tyhle body středy obecně nejsou, jsou to jen průsečíky. Pojmenuj je třeba L a M.</p>` }
+};
+
+/* ---------- 3.1 hexagonal pyramid ---------- */
+(() => {
+  const a = 1.8, v = 2.4, names = ['A','B','C','D','E','F'], pts = {};
+  names.forEach((n, k) => { const t = (k * 60 - 120) * Math.PI / 180; pts[n] = [a * Math.cos(t), a * Math.sin(t), 0]; });
+  pts.V = [0,0,v]; pts.O = [0,0,0]; pts.M = [0,-a*Math.sqrt(3)/2,0];
+  const faces = [names.slice()];
+  names.forEach((n, k) => faces.push([n, names[(k+1)%6], 'V']));
+  const els = {
+    pO: pt('O','key','O',[-14,-8]), pM: pt('M','key','M',[0,16]),
+    tOAB: poly(['O','A','B']), AB: seg('A','B','lbl','a = 1,8', false),
+    OV: seg('O','V','key','v = 2,4'), OM: seg('O','M','leg','ρ'), VM: seg('V','M','key','vs', true),
+    tOMV: poly(['O','M','V']), raO: ra('O','M','V'), fABV: poly(['A','B','V'],'face')
+  };
+  names.forEach(n => els['sp' + n] = seg('O', n, 'aux'));
+  const spokes = names.map(n => 'sp' + n);
+  FIGS['m-1'] = {
+    title: 'Příklad 1 · pravidelný šestiboký jehlan', task: 'Kolmý pravidelný šestiboký jehlan, a = 1,8 m, v = 2,4 m. Vypočítej objem a povrch.',
+    pts, solids: [{ faces, style: 'main', labels: [...names, 'V'] }], els, view: [-0.28, 0.62], def: 2,
+    steps: [
+      { title: 'Podstava: pravidelný šestiúhelník', show: [...spokes, 'tOAB', 'AB', 'pO'], html: `
+        <p>Když spojíš vrcholy šestiúhelníku se středem O, rozpadne se na <b>6 rovnostranných trojúhelníků</b> se stranou a.</p>
+        <p class="tip">Obsah rovnostranného trojúhelníku: jeho výška je ${r('a² − (a/2)²')} = ${fr(r('3'),'2')}·a, obsah = strana · výška / 2 = ${fr(r('3'),'4')}·a².</p>
+        <div class="eq">
+          <div>S<sub>p</sub> = 6 · ${fr(r('3'),'4')}·a² = ${fr('3' + r('3'),'2')}·a²</div>
+          <div>S<sub>p</sub> = ${fr('3' + r('3'),'2')} · 1,8² = ${fr('3' + r('3'),'2')} · 3,24 ≈ 8,418 m²</div>
+        </div>` },
+      { title: 'Objem', show: ['OV','pO', ...spokes], html: `
+        <p>Výška jehlanu v vede kolmo z vrcholu V do středu podstavy O.</p>
+        <div class="eq"><div>V = ${fr('1','3')} · S<sub>p</sub> · v = ${fr('1','3')} · 8,418 · 2,4 ≈ 6,73 m³</div></div>
+        <p class="tip">Jehlan má třetinu objemu hranolu se stejnou podstavou a výškou.</p>` },
+      { title: 'Stěnová výška v<sub>s</sub>', show: ['OV','OM','VM','tOMV','raO','pO','pM'], html: `
+        <p>Boční stěny jsou trojúhelníky se základnou a. K jejich obsahu potřebuješ <b>výšku boční stěny v<sub>s</sub></b> (z V kolmo na hranu podstavy, do bodu M), ne výšku jehlanu v. To je nejčastější chyba.</p>
+        <p>Trojúhelník <b>OMV</b> má pravý úhel u O (výška VO je kolmá na celou podstavu). Odvěsna OM = ρ je výška jednoho rovnostranného trojúhelníku z kroku 1.</p>
+        <div class="eq">
+          <div>ρ = ${fr(r('3'),'2')} · 1,8 ≈ 1,559 m &nbsp; (ρ² = ¾ · 3,24 = 2,43)</div>
+          <div>v<sub>s</sub> = ${r('v² + ρ²')} = ${r('2,4² + 2,43')} = ${r('5,76 + 2,43')} = ${r('8,19')} ≈ 2,862 m</div>
+        </div>` },
+      { title: 'Plášť a povrch', show: ['fABV','VM','AB','pM'], html: `
+        <div class="eq">
+          <div>Q = 6 · ${fr('a · v<sub>s</sub>','2')} = 3 · 1,8 · 2,862 ≈ 15,454 m²</div>
+          <div>S = S<sub>p</sub> + Q = 8,418 + 15,454 ≈ 23,87 m²</div>
+        </div>
+        <p class="res">Výsledek: <b>V ≈ 6,73 m³, S ≈ 23,87 m²</b></p>` }
+    ]
+  };
+})();
+
+/* ---------- 3.2 box ratio ---------- */
+FIGS['m-2'] = {
+  title: 'Příklad 2 · kvádr s hranami v poměru 3 : 5 : 7', task: 'Urči objem kvádru, jehož hrany jsou v poměru 3 : 5 : 7 a povrch je 568 dm².',
+  pts: box(6,10,14), solids: [cubeSolid], view: [-0.55, 0.32],
+  els: { a1: seg('A','B','key','3k'), b1: seg('B','C','key','5k'), c1: seg('A','E','key','7k'),
+         a2: seg('A','B','key','6 dm'), b2: seg('B','C','key','10 dm'), c2: seg('A','E','key','14 dm') },
+  steps: [
+    { title: 'Poměr → neznámá k', show: ['a1','b1','c1'], html: `<p>Poměr 3 : 5 : 7 znamená, že hrany jsou stejný násobek čísel 3, 5 a 7. Ten neznámý násobek označíš k:</p>
+      <div class="eq"><div>a = 3k, &nbsp; b = 5k, &nbsp; c = 7k</div></div>` },
+    { title: 'Rovnice z povrchu', show: ['a2','b2','c2'], html: `
+      <div class="eq">
+        <div>S = 2(ab + bc + ac)</div>
+        <div>S = 2(3k·5k + 5k·7k + 3k·7k) = 2(15k² + 35k² + 21k²) = 2 · 71k² = 142k²</div>
+        <div>142k² = 568 &nbsp;⇒&nbsp; k² = 4 &nbsp;⇒&nbsp; k = 2</div>
+      </div>
+      <p class="tip">k = −2 nebereš, délka hrany nemůže být záporná.</p>
+      <p>Hrany: a = 3·2 = 6 dm, b = 5·2 = 10 dm, c = 7·2 = 14 dm.</p>` },
+    { title: 'Objem a kontrola', show: ['a2','b2','c2'], html: `
+      <div class="eq">
+        <div>V = a · b · c = 6 · 10 · 14 = 840 dm³</div>
+        <div>Kontrola: 2(60 + 140 + 84) = 2 · 284 = 568 dm² ✓</div>
+      </div>
+      <p class="res">Výsledek: <b>V = 840 dm³</b></p>` }
+  ]
+};
+
+/* ---------- 3.3 12-gon prism ---------- */
+(() => {
+  const a = 1.6468, v = 2 * a, R = a / (2 * Math.sin(Math.PI / 12)), pts = {}, P = [], Q = [];
+  for (let k = 0; k < 12; k++) { const t = (k * 30 - 105) * Math.PI / 180; pts['P' + k] = [R*Math.cos(t), R*Math.sin(t), 0]; pts['Q' + k] = [R*Math.cos(t), R*Math.sin(t), v]; P.push('P' + k); Q.push('Q' + k); }
+  const rho = a / (2 * Math.tan(Math.PI / 12));
+  pts.O = [0,0,0]; pts.M = [0,-rho,0]; pts.ANG = [0,-rho*0.42,0];
+  const faces = [P.slice(), Q.slice()];
+  for (let k = 0; k < 12; k++) faces.push([P[k], P[(k+1)%12], Q[(k+1)%12], Q[k]]);
+  const els = { pO: pt('O','key','O',[0,-14]), tri: poly(['O','P0','P1']), OM: seg('O','M','leg','ρ', true), a: seg('P0','P1','key','a', false),
+    ang: pt('ANG','txt','30°',[0,0]), h: seg('P1','Q1','key','v = 2a', false), face: poly(['P0','P1','Q1','Q0'],'face') };
+  for (let k = 0; k < 12; k++) els['sp' + k] = seg('O', P[k], 'aux');
+  const spokes = P.map((_, k) => 'sp' + k);
+  FIGS['m-3'] = {
+    title: 'Příklad 3 · pravidelný dvanáctiboký hranol', task: 'Pravidelný dvanáctiboký hranol má objem 100 cm³ a výšku dvakrát větší než podstavnou hranu. Vypočítej jeho povrch.',
+    pts, solids: [{ faces, style: 'main', labels: false }], els, view: [-0.5, 0.5],
+    steps: [
+      { title: 'Podstava: dvanáctiúhelník', show: [...spokes, 'tri', 'OM', 'a', 'ang', 'pO'], html: `
+        <p>Neznáš a, ale víš V = 100 a v = 2a. Vyjádříš tedy objem pomocí a a vyřešíš rovnici. Nejdřív obsah podstavy.</p>
+        <p>Dvanáctiúhelník rozdělíš spojením vrcholů se středem O na <b>12 rovnoramenných trojúhelníků</b>. Úhel u středu je 360° : 12 = 30°. Výška ρ trojúhelník rozpůlí na dva pravoúhlé s úhlem 15° u O a protilehlou odvěsnou a/2:</p>
+        <div class="eq">
+          <div>tg 15° = ${fr('a/2','ρ')} &nbsp;⇒&nbsp; ρ = ${fr('a','2 · tg 15°')} ≈ ${fr('a','2 · 0,2679')} ≈ 1,866·a</div>
+          <div>S<sub>p</sub> = 12 · ${fr('a · ρ','2')} = 6 · a · 1,866a ≈ 11,196·a²</div>
+        </div>
+        <p class="tip">Přesně vychází S<sub>p</sub> = 3(2 + ${r('3')})·a², ale s desetinným číslem se počítá stejně dobře.</p>` },
+      { title: 'Rovnice z objemu', show: ['a','h'], html: `
+        <div class="eq">
+          <div>V = S<sub>p</sub> · v = 11,196a² · 2a = 22,392·a³</div>
+          <div>22,392·a³ = 100 &nbsp;⇒&nbsp; a³ = ${fr('100','22,392')} ≈ 4,466</div>
+          <div>a = ∛4,466 ≈ 1,647 cm, &nbsp; v = 2a ≈ 3,294 cm</div>
+        </div>
+        <p class="tip">Třetí odmocnina na kalkulačce: tlačítko ∛ nebo 4,466^(1/3).</p>` },
+      { title: 'Povrch', show: ['face','a','h'], html: `
+        <p>Plášť tvoří 12 stejných obdélníků s rozměry a × 2a.</p>
+        <div class="eq">
+          <div>a² ≈ 1,647² ≈ 2,712</div>
+          <div>2·S<sub>p</sub> = 2 · 11,196 · 2,712 ≈ 60,72 cm²</div>
+          <div>Q = 12 · a · 2a = 24a² ≈ 24 · 2,712 ≈ 65,08 cm²</div>
+          <div>S = 2S<sub>p</sub> + Q ≈ 60,72 + 65,08 ≈ 125,8 cm²</div>
+        </div>
+        <p class="tip">Kontrola: S<sub>p</sub> · v ≈ 30,36 · 3,294 ≈ 100 cm³ ✓</p>
+        <p class="res">Výsledek: <b>S ≈ 125,8 cm²</b></p>` }
+    ]
+  };
+})();
+
+/* ---------- 3.4 tetrahedron ADEC in box ---------- */
+FIGS['m-4'] = {
+  title: 'Příklad 4 · trojboký jehlan ADEC v kvádru', task: 'Kvádr ABCDEFGH má hrany a = 3 cm, b = 4 cm, c = 5 cm. Vypočítej objem a povrch trojbokého jehlanu ADEC.',
+  pts: box(3,4,5), view: [-0.55, 0.34],
+  solids: [{ faces: boxFaces, style: 'faint', labels: true }, { faces: [['A','C','D'],['A','D','E'],['A','C','E'],['D','C','E']], style: 'main', labels: false }],
+  els: {
+    base: poly(['A','C','D']), raD: ra('D','A','C'), AD: seg('A','D','lbl','4'), DC: seg('D','C','lbl','3'), AE: seg('A','E','lbl','5'),
+    AEv: seg('A','E','lbl','v = 5'), fADE: poly(['A','D','E']), raA1: ra('A','D','E'),
+    fACE: poly(['A','C','E']), AC: seg('A','C','lbl','5', true), raA2: ra('A','C','E'),
+    fDCE: poly(['D','C','E']), DE: seg('D','E','lbl','√41', true), raD2: ra('D','C','E')
+  },
+  steps: [
+    { title: 'Jehlan v kvádru', show: [], html: `<p>|AB| = a = 3, |BC| = |AD| = b = 4, |AE| = c = 5. Jehlan ADEC má vrcholy A, D, C dole a E přímo nad A. Má 4 trojúhelníkové stěny a <b>všechny čtyři jsou pravoúhlé</b>, takže obsah každé je odvěsna · odvěsna / 2.</p>` },
+    { title: 'Podstava ACD a objem', show: ['base','raD','AD','DC','AEv'], html: `
+      <p>Podstava ACD leží ve spodní stěně, pravý úhel je u D (AD a DC jsou hrany obdélníku). E je přímo nad A, takže výška jehlanu je |AE| = 5.</p>
+      <div class="eq">
+        <div>S<sub>ACD</sub> = ${fr('4 · 3','2')} = 6 cm²</div>
+        <div>V = ${fr('1','3')} · 6 · 5 = 10 cm³</div>
+      </div>` },
+    { title: 'Stěna ADE', show: ['fADE','raA1','AD','AE'], html: `<p>Pravý úhel u <b>A</b>: AE je svislá, AD vodorovná.</p><div class="eq"><div>S<sub>ADE</sub> = ${fr('4 · 5','2')} = 10 cm²</div></div>` },
+    { title: 'Stěna ACE', show: ['fACE','raA2','AC','AE'], html: `<p>Pravý úhel u <b>A</b>: AE je kolmá na celou podstavu, tedy i na úhlopříčku AC.</p>
+      <div class="eq"><div>|AC| = ${r('3² + 4²')} = ${r('25')} = 5</div><div>S<sub>ACE</sub> = ${fr('5 · 5','2')} = 12,5 cm²</div></div>` },
+    { title: 'Stěna DCE', show: ['fDCE','raD2','DC','DE'], html: `<p>Pravý úhel u <b>D</b>: hrana DC je kolmá na celou levou stěnu ADHE a úsečka DE v té stěně leží.</p>
+      <div class="eq"><div>|DE| = ${r('4² + 5²')} = ${r('41')} ≈ 6,403</div><div>S<sub>DCE</sub> = ${fr('3 · ' + r('41'),'2')} ≈ 9,605 cm²</div></div>` },
+    { title: 'Povrch', show: ['base','fADE','fACE','fDCE'], html: `
+      <div class="eq"><div>S = 6 + 10 + 12,5 + 9,605 ≈ 38,10 cm²</div><div>přesně: S = 28,5 + 1,5${r('41')} cm²</div></div>
+      <p class="res">Výsledek: <b>V = 10 cm³, S ≈ 38,10 cm²</b></p>` }
+  ]
+};
+
+/* ---------- renderer ---------- */
+const NS = 'http://www.w3.org/2000/svg';
+const mk = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+const sub3 = (a, b) => [a[0]-b[0], a[1]-b[1], a[2]-b[2]];
+const add3 = (a, b) => [a[0]+b[0], a[1]+b[1], a[2]+b[2]];
+const mul3 = (a, s) => [a[0]*s, a[1]*s, a[2]*s];
+const dot3 = (a, b) => a[0]*b[0] + a[1]*b[1] + a[2]*b[2];
+const cross3 = (a, b) => [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]];
+const norm3 = a => mul3(a, 1 / Math.hypot(...a));
+const avg3 = arr => mul3(arr.reduce((s, p) => add3(s, p), [0,0,0]), 1 / arr.length);
+
+class Fig {
+  constructor(cfg, host) {
+    this.cfg = cfg; this.W = 420; this.H = 360;
+    [this.yaw, this.pitch] = cfg.view || [-0.55, 0.38];
+    this.v0 = [this.yaw, this.pitch];
+    this.step = cfg.def ?? cfg.steps.length - 1;
+    this.solids = cfg.solids.map(s => {
+      const edges = new Map();
+      s.faces.forEach((f, fi) => f.forEach((a, i) => { const b = f[(i+1) % f.length]; const key = [a,b].sort().join('|'); if (!edges.has(key)) edges.set(key, { a, b, faces: [] }); edges.get(key).faces.push(fi); }));
+      return { ...s, edges: [...edges.values()], verts: [...new Set(s.faces.flat())] };
+    });
+    const all = Object.values(cfg.pts);
+    const mn = [0,1,2].map(i => Math.min(...all.map(p => p[i]))), mx = [0,1,2].map(i => Math.max(...all.map(p => p[i])));
+    this.c = mul3(add3(mn, mx), 0.5);
+    this.R = Math.max(...all.map(p => Math.hypot(...sub3(p, this.c))));
+    this.s = (Math.min(this.W, this.H) / 2 - 30) / this.R;
+    this.build(host);
+    this.render();
+  }
+  proj(p) {
+    const [x, y, z] = sub3(p, this.c);
+    const cy = Math.cos(this.yaw), sy = Math.sin(this.yaw), cp = Math.cos(this.pitch), sp = Math.sin(this.pitch);
+    const x1 = x*cy - y*sy, y1 = x*sy + y*cy;
+    const up = z*cp + y1*sp, depth = y1*cp - z*sp;
+    return { x: this.W/2 + x1*this.s, y: this.H/2 - up*this.s, v: [x1, up, depth] };
+  }
+  build(host) {
+    const c = this.cfg;
+    const head = document.createElement('div'); head.className = 'prob-head';
+    head.innerHTML = `<h3>${c.title}</h3>${c.chip ? `<span class="chip ${c.chip[0]}">${c.chip[1]}</span>` : ''}<p class="task">${c.task}</p>`;
+    host.appendChild(head);
+    const grid = document.createElement('div'); grid.className = 'grid'; host.appendChild(grid);
+    const fc = document.createElement('div'); fc.className = 'figcol'; grid.appendChild(fc);
+    const fw = document.createElement('div'); fw.className = 'figwrap'; fc.appendChild(fw);
+    this.svg = mk('svg', { viewBox: `0 0 ${this.W} ${this.H}`, class: 'fig', role: 'img', tabindex: '0', 'aria-label': `${c.title.replace(/<[^>]+>/g, '')}: obrázek tělesa, otočíš ho tažením nebo šipkami` }, fw);
+    this.g = mk('g', {}, this.svg);
+    const bar = document.createElement('div'); bar.className = 'figbar'; fw.appendChild(bar);
+    bar.innerHTML = `<button type="button" class="prev" aria-label="Předchozí krok">‹ Zpět</button><span class="count" aria-live="polite"></span><button type="button" class="next" aria-label="Další krok">Dál ›</button><button type="button" class="reset" aria-label="Srovnat pohled na výchozí">⟲ Srovnat</button>`;
+    this.prevB = bar.querySelector('.prev'); this.nextB = bar.querySelector('.next'); this.countEl = bar.querySelector('.count');
+    this.prevB.onclick = () => this.setStep(this.step - 1);
+    this.nextB.onclick = () => this.setStep(this.step + 1);
+    bar.querySelector('.reset').onclick = () => { [this.yaw, this.pitch] = this.v0; this.render(); };
+    const hint = document.createElement('p'); hint.className = 'hint'; hint.innerHTML = '<span class="mouse">Táhni obrázek myší a těleso se otočí. Šipkami na klávesnici taky.</span><span class="touch">Táhni prstem do strany a těleso se otočí.</span>'; fw.appendChild(hint);
+
+    const sc = document.createElement('div'); sc.style.minWidth = '0'; grid.appendChild(sc);
+    const ol = document.createElement('ol'); ol.className = 'steps'; sc.appendChild(ol);
+    this.lis = c.steps.map((st, i) => {
+      const li = document.createElement('li');
+      li.innerHTML = `<button type="button" class="st-h"><span class="st-n">${i+1}</span><span>${st.title}</span></button><div class="st-b">${st.html}</div>`;
+      li.addEventListener('click', () => this.setStep(i));
+      ol.appendChild(li); return li;
+    });
+    if (c.note) { const n = document.createElement('div'); n.className = 'note ' + c.note.k; n.innerHTML = c.note.html; sc.appendChild(n); }
+
+    const svg = this.svg;
+    svg.addEventListener('pointerdown', e => { this.drag = [e.clientX, e.clientY]; svg.setPointerCapture(e.pointerId); svg.classList.add('grab'); });
+    svg.addEventListener('pointermove', e => {
+      if (!this.drag) return;
+      const dx = e.clientX - this.drag[0], dy = e.clientY - this.drag[1]; this.drag = [e.clientX, e.clientY];
+      this.yaw += dx * 0.011; if (e.pointerType !== 'touch') this.pitch = Math.max(-0.3, Math.min(1.4, this.pitch + dy * 0.009)); this.render();
+    });
+    const end = () => { this.drag = null; svg.classList.remove('grab'); };
+    svg.addEventListener('pointerup', end); svg.addEventListener('pointercancel', end);
+    svg.addEventListener('keydown', e => {
+      const m = { ArrowLeft: [-0.12, 0], ArrowRight: [0.12, 0], ArrowUp: [0, -0.1], ArrowDown: [0, 0.1] }[e.key];
+      if (!m) return; e.preventDefault(); this.yaw += m[0]; this.pitch = Math.max(-0.3, Math.min(1.4, this.pitch + m[1])); this.render();
+    });
+  }
+  setStep(i) { if (i < 0 || i >= this.cfg.steps.length) return; this.step = i; this.render(); }
+  text(x, y, str, cls) {
+    const t = mk('text', { x: x.toFixed(1), y: y.toFixed(1), class: cls, 'text-anchor': 'middle', 'dominant-baseline': 'central' }, this.g);
+    const [b, s] = String(str).split('_');
+    t.appendChild(document.createTextNode(b));
+    if (s) { const ts = mk('tspan', { dy: '4', 'font-size': '9.5' }, t); ts.textContent = s; }
+  }
+  render() {
+    const c = this.cfg, g = this.g; g.replaceChildren();
+    const P = {}; for (const [n, p] of Object.entries(c.pts)) P[n] = this.proj(p);
+    const ids = c.steps[this.step].show.filter(id => c.els[id]);
+    const E = id => c.els[id];
+    const cx = this.W / 2, cy = this.H / 2;
+
+    ids.filter(id => E(id).t === 'poly').forEach(id => mk('polygon', { points: E(id).p.map(n => `${P[n].x.toFixed(1)},${P[n].y.toFixed(1)}`).join(' '), class: 'p-' + E(id).k }, g));
+
+    const vertLabels = [];
+    this.solids.forEach(s => {
+      const sc = avg3(s.verts.map(n => P[n].v));
+      const front = s.faces.map(f => {
+        const a = P[f[0]].v, b = P[f[1]].v, cc = P[f[2]].v;
+        let n = cross3(sub3(b, a), sub3(cc, a));
+        if (dot3(n, sub3(avg3(f.map(q => P[q].v)), sc)) < 0) n = mul3(n, -1);
+        return n[2] < 0;
+      });
+      const hid = [], vis = [];
+      s.edges.forEach(e => (e.faces.some(fi => front[fi]) ? vis : hid).push(e));
+      const draw = (e, extra) => mk('line', { x1: P[e.a].x.toFixed(1), y1: P[e.a].y.toFixed(1), x2: P[e.b].x.toFixed(1), y2: P[e.b].y.toFixed(1), class: `e-${s.style}${extra}` }, g);
+      hid.forEach(e => draw(e, ' hid')); vis.forEach(e => draw(e, ''));
+      if (s.labels) {
+        const list = s.labels === true ? s.verts : s.labels;
+        const scx = avg3(s.verts.map(n => [P[n].x, P[n].y, 0]));
+        list.forEach(n => vertLabels.push({ n, scx, faint: s.style === 'faint' }));
+      }
+    });
+
+    const segLabels = [];
+    ids.forEach(id => {
+      const e = E(id);
+      if (e.t === 'seg') {
+        if (e.k !== 'lbl') mk('line', { x1: P[e.a].x.toFixed(1), y1: P[e.a].y.toFixed(1), x2: P[e.b].x.toFixed(1), y2: P[e.b].y.toFixed(1), class: 's-' + e.k }, g);
+        if (e.label) segLabels.push(e);
+      } else if (e.t === 'line') {
+        const A = c.pts[e.a], B = c.pts[e.b], d = sub3(B, A);
+        const p1 = this.proj(add3(A, mul3(d, e.t0))), p2 = this.proj(add3(A, mul3(d, e.t1)));
+        mk('line', { x1: p1.x.toFixed(1), y1: p1.y.toFixed(1), x2: p2.x.toFixed(1), y2: p2.y.toFixed(1), class: 's-aux' }, g);
+      } else if (e.t === 'ra') {
+        const O = c.pts[e.p], sz = this.R * 0.1;
+        const u = mul3(norm3(sub3(c.pts[e.u], O)), sz), w = mul3(norm3(sub3(c.pts[e.v], O)), sz);
+        const q = [add3(O, u), add3(add3(O, u), w), add3(O, w)].map(p => this.proj(p));
+        mk('polyline', { points: q.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' '), class: 'ra' }, g);
+      }
+    });
+
+    vertLabels.forEach(({ n, scx, faint }) => {
+      const p = P[n];
+      if (!faint) mk('circle', { cx: p.x.toFixed(1), cy: p.y.toFixed(1), r: 3, class: 'd-vert' }, g);
+      let dx = p.x - scx[0], dy = p.y - scx[1]; const L = Math.hypot(dx, dy) || 1;
+      this.text(p.x + dx / L * 15, p.y + dy / L * 15, n, 'lv' + (faint ? ' faint' : ''));
+    });
+
+    segLabels.forEach(e => {
+      const a = P[e.a], b = P[e.b], mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+      let nx = -(b.y - a.y), ny = b.x - a.x; const L = Math.hypot(nx, ny) || 1; nx /= L; ny /= L;
+      if (nx * (mx - cx) + ny * (my - cy) < 0) { nx = -nx; ny = -ny; }
+      if (e.flip) { nx = -nx; ny = -ny; }
+      const off = 8 + e.label.length * 2.6;
+      this.text(mx + nx * off, my + ny * Math.min(off, 14), e.label, 'ls ' + e.k);
+    });
+
+    ids.filter(id => E(id).t === 'pt').forEach(id => {
+      const e = E(id), p = P[e.p];
+      if (e.k !== 'txt') mk('circle', { cx: p.x.toFixed(1), cy: p.y.toFixed(1), r: 4.2, class: 'd-' + e.k }, g);
+      if (e.label) {
+        let ox, oy;
+        if (e.off) [ox, oy] = e.off; else { const dx = p.x - cx, dy = p.y - cy, L = Math.hypot(dx, dy) || 1; ox = dx / L * 16; oy = dy / L * 16; }
+        this.text(p.x + ox, p.y + oy, e.label, 'lp ' + e.k);
+      }
+    });
+
+    this.lis.forEach((li, i) => li.classList.toggle('on', i === this.step));
+    this.countEl.textContent = `Krok ${this.step + 1} / ${c.steps.length}`;
+    this.prevB.disabled = this.step === 0; this.nextB.disabled = this.step === c.steps.length - 1;
+  }
+}
+
+document.querySelectorAll('[data-fig]').forEach(host => {
+  const cfg = FIGS[host.dataset.fig];
+  if (!cfg) return;
+  try { new Fig(cfg, host); } catch (err) { host.textContent = 'Obrázek se nepodařilo vykreslit: ' + err.message; }
+});
+</script>
+
+</body>
+</html>
